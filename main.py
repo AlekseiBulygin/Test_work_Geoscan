@@ -1,19 +1,44 @@
 import sys
-from PyQt4.QtGui import *
+from PyQt4.QtGui import QApplication, QMainWindow, QPainter, QColor
+from PyQt4.QtCore import SIGNAL
+
+from design import Ui_MainWindow
 
 
-class MainWindow(QMainWindow):
+class MainWindow(QMainWindow, Ui_MainWindow):
+    def __init__(self, args):
+        QMainWindow.__init__(self)
+        self.setupUi(self)
+        self.args = []
+
+        if len(args) - 1 > 0:
+            self.lineEdit.setText(' '.join(str(i) for i in args[1:]))
+        self.connect(self.pushButton, SIGNAL('clicked()'), self.button_event)
+
+    def button_event(self):
+        data = self.lineEdit.text().split()
+        result_check = check_args(data)
+        if result_check != True:
+            self.label_2.setText(result_check)
+        else:
+            args = []
+            for i in data:
+                args.append(int(i))
+
+            self.window = Towers(args)
+            self.window.show()
+
+
+class Towers(QMainWindow):
     def __init__(self, args):
         QMainWindow.__init__(self)
         self.towers = args
         self.setupUi()
         self.cups = []
-        print(args)
 
     def setupUi(self):
         self.setGeometry(350, 200, 420, 430)
         self.setWindowTitle('Towers')
-        self.show()
 
     def paintEvent(self, *args, **kwargs):
         qp = QPainter()
@@ -77,7 +102,6 @@ class MainWindow(QMainWindow):
         color = QColor(51, 204, 255)
         qp.setPen(color)
         self.find_border()
-        print(cups)
         for result in cups:
             deep = result[0]
             start = result[1]
@@ -88,27 +112,28 @@ class MainWindow(QMainWindow):
                     qp.drawRect(10 + j*40, 380 - 40*i, 40, 40)
 
 
-def main(args):
+def check_args(args):
+    try:
+        assert len(args) < 11
+        for param in args:
+            if int(param) > 10 or int(param) < 0:
+                raise RuntimeError
+    except AssertionError:
+        return "Количество башен не должно превышать 10."
+    except RuntimeError:
+        return "Некорректный ввод.\nВысота башни от 0 до 10."
+    except ValueError:
+        return "Некорректный ввод.\nВведите целые числовые значения."
+    else:
+        return True
+
+
+def main():
     app = QApplication(sys.argv)
-    window = MainWindow(args)
+    window = MainWindow(sys.argv)
     window.show()
     sys.exit(app.exec_())
 
 
 if __name__ == "__main__":
-    args = []
-    try:
-        assert len(sys.argv) - 1 < 11
-        for param in sys.argv[1:]:
-            if int(param) > 10:
-                raise RuntimeError
-            else:
-                args.append(int(param))
-    except AssertionError:
-        print("Количество башен не должно превышать 10.")
-    except RuntimeError:
-        print("Некорректный ввод. Высота башни не более 10.")
-    except ValueError:
-        print("Некорректный ввод. Введите целые числовые значения.")
-    else:
-        main(args)
+    main()
