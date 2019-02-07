@@ -56,7 +56,7 @@ class Towers(QMainWindow):
                 qp.setBrush(QColor(153, 153, 102))
                 qp.drawRect(10 + j*40, 380 - 40*i, 40, 40)
 
-    def find_border(self):
+    def find_border(self, cups):
         left_side = 0
         left_index = 0
         right_side = 0
@@ -74,34 +74,36 @@ class Towers(QMainWindow):
                     right_side = self.towers[i]
                     right_index = i
 
-                if left_side != 0 and right_side != 0 and bottom != 10 and right_side >= left_side:
+                if right_side >= left_side and right_side != 0:
                     tup = (min(left_side, right_side), left_index, right_index, bottom)
-                    if tup not in self.cups:
-                        self.cups.append(tup)
+                    if tup not in cups:
+                        cups.append(tup)
                         left_side, right_side = right_side, 0
                         left_index, right_index = right_index, 0
                         bottom = 10
+                elif right_side < left_side and right_side != 0:
+                    tup = (min(left_side, right_side), left_index, right_index, bottom)
+                    if tup not in cups:
+                        cups.append(tup)
+                        right_side = 0
+                        right_index = 0
+
             elif self.towers[i] == 0:
                 if left_side != 0 and right_side != 0 and bottom != 10:
                     tup = (min(left_side, right_side), left_index, right_index, bottom)
-                    if tup not in self.cups:
-                        self.cups.append(tup)
+                    if tup not in cups:
+                        cups.append(tup)
                 left_side = 0
                 left_index = 0
                 right_side = 0
                 right_index = 0
                 bottom = 10
 
-        if left_side != 0 and right_side != 0 and bottom != 10:
-            tup = (min(left_side, right_side), left_index, right_index, bottom)
-            if tup not in self.cups:
-                self.cups.append(tup)
-
     def pour_water(self, qp):
-        cups = self.cups
         color = QColor(51, 204, 255)
         qp.setPen(color)
-        self.find_border()
+        cups = []
+        self.find_border(cups)
         for result in cups:
             deep = result[0]
             start = result[1]
