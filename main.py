@@ -16,6 +16,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.connect(self.pushButton, SIGNAL('clicked()'), self.button_event)
 
     def button_event(self):
+        self.label_2.clear()
         data = self.lineEdit.text().split()
         result_check = check_args(data)
         if result_check != True:
@@ -76,23 +77,21 @@ class Towers(QMainWindow):
 
                 if right_side >= left_side and right_side != 0:
                     tup = (min(left_side, right_side), left_index, right_index, bottom)
-                    if tup not in cups:
-                        cups.append(tup)
-                        left_side, right_side = right_side, 0
-                        left_index, right_index = right_index, 0
-                        bottom = 10
+                    cups.append(tup)
+                    left_side, right_side = right_side, 0
+                    left_index, right_index = right_index, 0
+                    bottom = 10
                 elif right_side < left_side and right_side != 0:
                     tup = (min(left_side, right_side), left_index, right_index, bottom)
-                    if tup not in cups:
-                        cups.append(tup)
-                        right_side = 0
-                        right_index = 0
+                    cups.append(tup)
+                    bottom = right_side
+                    right_side = 0
+                    right_index = 0
 
             elif self.towers[i] == 0:
                 if left_side != 0 and right_side != 0 and bottom != 10:
                     tup = (min(left_side, right_side), left_index, right_index, bottom)
-                    if tup not in cups:
-                        cups.append(tup)
+                    cups.append(tup)
                 left_side = 0
                 left_index = 0
                 right_side = 0
